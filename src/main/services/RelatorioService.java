@@ -1,27 +1,41 @@
+// Arquivo: RelatorioService.java (com dados detalhados e construtor compatível)
 package main.services;
 
-import main.models.Emprestimo;
+import main.models.Emprestavel;
 import main.models.InRelatorio;
+
 import java.util.List;
 
 public class RelatorioService implements InRelatorio {
-    private List<Emprestimo> emprestimos;
+    private EmprestimoService emprestimoService;
+    private BibliotecaService biblioteca;
 
-    public RelatorioService(List<Emprestimo> emprestimos) {
-        this.emprestimos = emprestimos;
+    public RelatorioService(EmprestimoService emprestimoService, BibliotecaService biblioteca) {
+        this.emprestimoService = emprestimoService;
+        this.biblioteca = biblioteca;
     }
 
     @Override
     public void gerarRelatorio() {
+        List<Emprestavel> emprestimos = emprestimoService.getEmprestimos();
+
         System.out.println("\n=== RELATÓRIO DE EMPRÉSTIMOS ===");
 
-        emprestimos.forEach(emp -> {
-            String status = emp.estaDisponivel() ? "EMPRESTADO" : "DEVOLVIDO";
-            System.out.println(
-                    "Livro: " + emp.getLivro().getTitulo() +
-                            " | Cliente: " + emp.getCliente().getName() +
-                            " | Devolução: " + emp.getDataDevolucao() +
-                            " | Status: " + status);
-        });
+        if (emprestimos.isEmpty()) {
+            System.out.println("Nenhum empréstimo registrado.");
+            return;
+        }
+
+        for (Emprestavel emp : emprestimos) {
+            String livroDetalhado = biblioteca.getLivroDetalhado((String) emp.getLivro());
+            String nomeCliente = biblioteca.getNomeClientePorCpf((String) emp.getCliente());
+            String status = emp.estaDisponivel() ? "DEVOLVIDO" : "EMPRESTADO";
+
+            System.out.println("Livro: " + livroDetalhado +
+                    " | Cliente: " + nomeCliente +
+                    " | CPF: " + emp.getCliente() +
+                    " | Devolução: " + emp.getDataDevolucao() +
+                    " | Status: " + status);
+        }
     }
 }

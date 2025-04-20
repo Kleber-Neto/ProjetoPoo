@@ -15,7 +15,7 @@ public abstract class Pessoa {
     }
 
     public String getCpf() {
-        return cpf;
+        return cpf.trim();
     }
 
     // Método abstrato (Polimorfismo)
