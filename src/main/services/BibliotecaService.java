@@ -1,4 +1,4 @@
-// Arquivo: BibliotecaService.java (com melhorias, devolução e relatório detalhado)
+// Arquivo: BibliotecaService.java (com métodos extras para atualização e remoção)
 package main.services;
 
 import main.models.*;
@@ -16,42 +16,31 @@ public class BibliotecaService {
         carregarDados();
     }
 
-    // Cadastra um livro (Encapsulamento)
     public void cadastrarLivro(String titulo, String autor, int ano) {
         Livro livro = new Livro(titulo, autor, ano);
         livros.add(livro);
         salvarLivros();
     }
 
-    // Cadastra um cliente (Tratamento de exceção)
     public void cadastrarCliente(String nome, String cpf) {
         if (cpf == null || cpf.isEmpty() || !cpf.matches("\\d{11}")) {
             throw new IllegalArgumentException("CPF inválido! Deve conter 11 dígitos numéricos.");
         }
-
-        boolean cpfJaCadastrado = clientes.stream()
-                .anyMatch(c -> c.getCpf().equals(cpf));
-
+        boolean cpfJaCadastrado = clientes.stream().anyMatch(c -> c.getCpf().equals(cpf));
         if (cpfJaCadastrado) {
             throw new IllegalArgumentException("CPF já cadastrado!");
         }
-
         Cliente cliente = new Cliente(nome, cpf);
         clientes.add(cliente);
         salvarClientes();
     }
 
     public Cliente buscarClientePorCPF(String cpf) {
-        return clientes.stream()
-                .filter(c -> c.getCpf().trim().equalsIgnoreCase(cpf.trim()))
-                .findFirst()
-                .orElse(null);
+        return clientes.stream().filter(c -> c.getCpf().trim().equalsIgnoreCase(cpf.trim())).findFirst().orElse(null);
     }
 
     public Livro buscarLivroPorTitulo(String titulo) {
-        return livros.stream()
-                .filter(l -> l.getTitulo().trim().equalsIgnoreCase(titulo.trim()))
-                .findFirst()
+        return livros.stream().filter(l -> l.getTitulo().trim().equalsIgnoreCase(titulo.trim())).findFirst()
                 .orElse(null);
     }
 
@@ -67,7 +56,44 @@ public class BibliotecaService {
         return new ArrayList<>(livros);
     }
 
-    // Persistência em arquivo
+    public boolean atualizarLivro(String tituloAntigo, String novoTitulo, String novoAutor, int novoAno) {
+        Livro livro = buscarLivroPorTitulo(tituloAntigo);
+        if (livro == null)
+            return false;
+        livros.remove(livro);
+        livros.add(new Livro(novoTitulo, novoAutor, novoAno));
+        salvarLivros();
+        return true;
+    }
+
+    public boolean removerLivro(String titulo) {
+        Livro livro = buscarLivroPorTitulo(titulo);
+        if (livro == null)
+            return false;
+        livros.remove(livro);
+        salvarLivros();
+        return true;
+    }
+
+    public boolean atualizarCliente(String cpf, String novoNome) {
+        Cliente cliente = buscarClientePorCPF(cpf);
+        if (cliente == null)
+            return false;
+        clientes.remove(cliente);
+        clientes.add(new Cliente(novoNome, cpf));
+        salvarClientes();
+        return true;
+    }
+
+    public boolean removerCliente(String cpf) {
+        Cliente cliente = buscarClientePorCPF(cpf);
+        if (cliente == null)
+            return false;
+        clientes.remove(cliente);
+        salvarClientes();
+        return true;
+    }
+
     private void salvarLivros() {
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(ARQUIVO_LIVROS))) {
             for (Livro livro : livros) {
@@ -91,7 +117,6 @@ public class BibliotecaService {
     }
 
     private void carregarDados() {
-        // Carregar livros
         try (BufferedReader reader = new BufferedReader(new FileReader(ARQUIVO_LIVROS))) {
             String linha;
             while ((linha = reader.readLine()) != null) {
@@ -103,7 +128,6 @@ public class BibliotecaService {
         } catch (IOException ignored) {
         }
 
-        // Carregar clientes
         try (BufferedReader reader = new BufferedReader(new FileReader(ARQUIVO_CLIENTES))) {
             String linha;
             while ((linha = reader.readLine()) != null) {
@@ -116,7 +140,6 @@ public class BibliotecaService {
         }
     }
 
-    // Utilitários extras
     public String getNomeClientePorCpf(String cpf) {
         Cliente cliente = buscarClientePorCPF(cpf);
         return cliente != null ? cliente.getName() : "Desconhecido";
@@ -127,7 +150,6 @@ public class BibliotecaService {
         return livro != null ? livro.getTitulo() + " de " + livro.getAutor() + " (" + livro.getAno() + ")" : titulo;
     }
 
-    // Suporte a devolução
     public boolean livroExiste(String titulo) {
         return livros.stream().anyMatch(l -> l.getTitulo().equalsIgnoreCase(titulo));
     }
