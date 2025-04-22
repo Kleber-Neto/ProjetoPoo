@@ -1,6 +1,5 @@
 package main.models;
 
-import main.models.Cliente;
 import java.time.LocalDate;
 
 public interface Emprestavel {
@@ -10,7 +9,7 @@ public interface Emprestavel {
 
     void devolver();
 
-    Object getLivro();
+    String getLivro();
 
     Object getCliente();
 

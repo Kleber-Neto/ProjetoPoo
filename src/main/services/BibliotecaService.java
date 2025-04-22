@@ -1,20 +1,64 @@
-// Arquivo: BibliotecaService.java (com métodos extras para atualização e remoção)
+// BibliotecaService.java (atualizado para listar apenas livros realmente disponíveis)
 package main.services;
 
 import main.models.*;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class BibliotecaService {
     private List<Livro> livros = new ArrayList<>();
     private List<Cliente> clientes = new ArrayList<>();
+    private ReservaService reservaService;
     private final String ARQUIVO_LIVROS = "livros.txt";
     private final String ARQUIVO_CLIENTES = "clientes.txt";
 
     public BibliotecaService() {
         carregarDados();
     }
+
+    public void setReservaService(ReservaService reservaService) {
+        this.reservaService = reservaService;
+    }
+
+    public List<ReservaService.Reserva> getReservas() {
+        return reservaService != null ? reservaService.listarReservas() : new ArrayList<>();
+    }
+
+    public void cancelarReserva(String cpf, String titulo) {
+        if (reservaService != null) {
+            reservaService.cancelarReserva(cpf, titulo);
+        }
+    }
+
+    public List<Livro> listarLivrosDisponivel(List<String> titulosEmprestados) {
+        List<String> titulosReservados = getReservas().stream()
+                .map(r -> r.getTituloLivro().toLowerCase())
+                .collect(Collectors.toList());
+
+        return livros.stream()
+                .filter(livro -> !titulosEmprestados.contains(livro.getTitulo().toLowerCase()) &&
+                        !titulosReservados.contains(livro.getTitulo().toLowerCase()))
+                .collect(Collectors.toList());
+    }
+
+    // Listagem completa com filtro de disponibilidade
+    public List<Livro> listarLivrosDisponiveisComFiltro(EmprestimoService emprestimoService) {
+        List<String> titulosEmprestados = new ArrayList<>();
+        for (Emprestavel e : emprestimoService.getEmprestimos()) {
+            if (!e.estaDisponivel()) {
+                String titulo = (String) e.getLivro();
+                if (titulo != null) {
+                    titulosEmprestados.add(titulo.toLowerCase());
+                }
+            }
+        }
+        return listarLivrosDisponivel(titulosEmprestados);
+    }
+
+    // ... restante do código da classe permanece o mesmo (não modificado aqui para
+    // manter clareza)
 
     public void cadastrarLivro(String titulo, String autor, int ano) {
         Livro livro = new Livro(titulo, autor, ano);
@@ -36,11 +80,16 @@ public class BibliotecaService {
     }
 
     public Cliente buscarClientePorCPF(String cpf) {
-        return clientes.stream().filter(c -> c.getCpf().trim().equalsIgnoreCase(cpf.trim())).findFirst().orElse(null);
+        return clientes.stream()
+                .filter(c -> c.getCpf().trim().equalsIgnoreCase(cpf.trim()))
+                .findFirst()
+                .orElse(null);
     }
 
     public Livro buscarLivroPorTitulo(String titulo) {
-        return livros.stream().filter(l -> l.getTitulo().trim().equalsIgnoreCase(titulo.trim())).findFirst()
+        return livros.stream()
+                .filter(l -> l.getTitulo().trim().equalsIgnoreCase(titulo.trim()))
+                .findFirst()
                 .orElse(null);
     }
 

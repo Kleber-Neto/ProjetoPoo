@@ -55,7 +55,7 @@ public class Main {
         int ano = scanner.nextInt();
         scanner.nextLine();
         biblioteca.cadastrarLivro(titulo, autor, ano);
-        System.out.println("✔ Livro cadastrado!");
+        System.out.println("Livro cadastrado!");
     }
 
     private static void cadastrarCliente() {
@@ -65,7 +65,7 @@ public class Main {
         String cpf = scanner.nextLine();
         try {
             biblioteca.cadastrarCliente(nome, cpf);
-            System.out.println("✔ Cliente cadastrado!");
+            System.out.println("Cliente cadastrado!");
         } catch (IllegalArgumentException e) {
             System.out.println("Erro: " + e.getMessage());
         }
@@ -93,7 +93,7 @@ public class Main {
 
         try {
             emprestimoService.emprestarLivro(cpf, titulo, LocalDate.now().plusDays(7));
-            System.out.println("✔ Empréstimo realizado!");
+            System.out.println("Empréstimo realizado!");
         } catch (Exception e) {
             System.out.println("Erro: " + e.getMessage());
         }
@@ -107,7 +107,7 @@ public class Main {
 
         try {
             emprestimoService.devolverLivro(cpf, titulo);
-            System.out.println("✔ Livro devolvido!");
+            System.out.println("Livro devolvido!");
         } catch (Exception e) {
             System.out.println("Erro: " + e.getMessage());
         }

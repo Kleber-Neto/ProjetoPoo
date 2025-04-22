@@ -37,7 +37,7 @@ public class Emprestimo implements Emprestavel {
     }
 
     @Override
-    public Object getLivro() {
+    public String getLivro() {
         return livro;
     }
 

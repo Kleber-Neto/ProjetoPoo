@@ -145,17 +145,19 @@ public class BibliotecaGUI extends JFrame {
     }
 
     private void listarLivros() {
-        var livros = biblioteca.getLivros();
-        var emprestimos = emprestimoService.getEmprestimos();
+        var livrosDisponiveis = biblioteca.listarLivrosDisponiveisComFiltro(emprestimoService);
 
-        StringBuilder sb = new StringBuilder("Livros disponíveis:");
-        for (var livro : livros) {
-            boolean emprestado = emprestimos.stream()
-                    .anyMatch(e -> e.getLivro().equals(livro.getTitulo()) && !e.estaDisponivel());
-            if (!emprestado) {
-                sb.append("- ").append(livro.getTitulo()).append(" (" + livro.getAutor() + ")");
-            }
+        if (livrosDisponiveis.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Nenhum livro disponível no momento.");
+            return;
         }
+
+        StringBuilder sb = new StringBuilder("Livros disponíveis:\n");
+        for (var livro : livrosDisponiveis) {
+            sb.append("- ").append(livro.getTitulo())
+                    .append(" (").append(livro.getAutor()).append(")\n");
+        }
+
         JOptionPane.showMessageDialog(this, sb.toString());
     }
 
