@@ -1,5 +1,0 @@
-Sistema de gerenciamento de biblioteca: Desenvolva um
-sistema para gerenciar o acervo de uma biblioteca, permitindo
-cadastrar livros, usuários, empréstimos, reservas, etc. O
-sistema deve permitir consultas, relatórios e operações de
-CRUD (Create, Read, Update, Delete) para cada entidade.

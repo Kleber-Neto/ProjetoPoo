@@ -1,4 +1,3 @@
-// Arquivo: BibliotecaGUI.java (com menus organizados por abas)
 package main.ui;
 
 import main.services.*;
@@ -17,6 +16,7 @@ public class BibliotecaGUI extends JFrame {
         this.biblioteca = new BibliotecaService();
         this.emprestimoService = new EmprestimoService(biblioteca);
         this.reservaService = new ReservaService();
+        biblioteca.setReservaService(reservaService);
 
         setSize(600, 600);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
@@ -75,11 +75,6 @@ public class BibliotecaGUI extends JFrame {
         btn.addActionListener(acao);
         return btn;
     }
-
-    // Reuso de métodos anteriores: cadastrar/atualizar/remover livro e cliente,
-    // empréstimo, reserva, relatórios
-
-    // Métodos de operação para cada botão:
 
     private void cadastrarLivro() {
         String titulo = JOptionPane.showInputDialog("Título do livro:");

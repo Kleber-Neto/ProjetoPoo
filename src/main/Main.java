@@ -1,4 +1,3 @@
-// Arquivo: Main.java (com correções de relatórios e listagem de livros)
 package main;
 
 import main.models.Emprestavel;
@@ -82,7 +81,8 @@ public class Main {
         System.out.println("\nLIVROS DISPONÍVEIS:");
         todos.stream()
                 .filter(l -> !livrosEmprestados.contains(l.getTitulo()))
-                .forEach(livro -> System.out.println(livro.getTitulo() + " - " + livro.getAutor()));
+                .forEach(livro -> System.out.println(livro.getTitulo() + " - " +
+                        livro.getAutor()));
     }
 
     private static void emprestarLivro() {

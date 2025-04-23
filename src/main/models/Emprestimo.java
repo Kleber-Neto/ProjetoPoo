@@ -1,4 +1,3 @@
-// Arquivo: Emprestimo.java (corrigido)
 package main.models;
 
 import java.time.LocalDate;

@@ -1,21 +1,79 @@
-// Arquivo: ReservaService.java (CRUD completo com relatório)
 package main.services;
 
-import java.time.LocalDate;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
+import java.util.stream.Collectors;
 
 public class ReservaService {
+    private List<Reserva> reservas = new ArrayList<>();
+    private final String ARQUIVO_RESERVAS = "reservas.txt";
+
+    public ReservaService() {
+        carregarReservas();
+    }
+
+    public void adicionarReserva(String cpf, String titulo) {
+        if (reservas.stream().anyMatch(r -> r.getTituloLivro().equalsIgnoreCase(titulo))) {
+            throw new IllegalArgumentException("Este livro já está reservado.");
+        }
+        reservas.add(new Reserva(cpf, titulo));
+        salvarReservas();
+    }
+
+    public void cancelarReserva(String cpf, String titulo) {
+        reservas.removeIf(r -> r.getCpf().equalsIgnoreCase(cpf) && r.getTituloLivro().equalsIgnoreCase(titulo));
+        salvarReservas();
+    }
+
+    public List<Reserva> listarReservas() {
+        return new ArrayList<>(reservas);
+    }
+
+    public String gerarRelatorioReservas() {
+        if (reservas.isEmpty())
+            return "Nenhuma reserva encontrada.";
+        return reservas.stream()
+                .map(r -> "Cliente: " + r.getCpf() + " | Livro: " + r.getTituloLivro())
+                .collect(Collectors.joining("\n"));
+    }
+
+    private void salvarReservas() {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(ARQUIVO_RESERVAS))) {
+            for (Reserva r : reservas) {
+                writer.write(r.getCpf() + ";" + r.getTituloLivro());
+                writer.newLine();
+            }
+        } catch (IOException e) {
+            System.out.println("Erro ao salvar reservas: " + e.getMessage());
+        }
+    }
+
+    private void carregarReservas() {
+        File arquivo = new File(ARQUIVO_RESERVAS);
+        if (!arquivo.exists())
+            return;
+
+        try (BufferedReader reader = new BufferedReader(new FileReader(arquivo))) {
+            String linha;
+            while ((linha = reader.readLine()) != null) {
+                String[] partes = linha.split(";");
+                if (partes.length == 2) {
+                    reservas.add(new Reserva(partes[0], partes[1]));
+                }
+            }
+        } catch (IOException e) {
+            System.out.println("Erro ao carregar reservas: " + e.getMessage());
+        }
+    }
+
     public static class Reserva {
         private String cpf;
         private String tituloLivro;
-        private LocalDate dataReserva;
 
-        public Reserva(String cpf, String tituloLivro, LocalDate dataReserva) {
+        public Reserva(String cpf, String tituloLivro) {
             this.cpf = cpf;
             this.tituloLivro = tituloLivro;
-            this.dataReserva = dataReserva;
         }
 
         public String getCpf() {
@@ -25,84 +83,5 @@ public class ReservaService {
         public String getTituloLivro() {
             return tituloLivro;
         }
-
-        public LocalDate getDataReserva() {
-            return dataReserva;
-        }
-
-        public void setTituloLivro(String novoTitulo) {
-            this.tituloLivro = novoTitulo;
-        }
-
-        public void setDataReserva(LocalDate novaData) {
-            this.dataReserva = novaData;
-        }
-
-        @Override
-        public String toString() {
-            return "Livro: " + tituloLivro + " | CPF: " + cpf + " | Data: " + dataReserva;
-        }
-    }
-
-    private List<Reserva> reservas = new ArrayList<>();
-
-    public void adicionarReserva(String cpf, String tituloLivro) {
-        if (cpf == null || tituloLivro == null || cpf.isEmpty() || tituloLivro.isEmpty()) {
-            throw new IllegalArgumentException("CPF e título são obrigatórios.");
-        }
-
-        boolean jaReservado = reservas.stream()
-                .anyMatch(r -> r.getCpf().equals(cpf) && r.getTituloLivro().equalsIgnoreCase(tituloLivro));
-
-        if (jaReservado) {
-            throw new IllegalArgumentException("Este livro já está reservado por este cliente.");
-        }
-
-        reservas.add(new Reserva(cpf, tituloLivro, LocalDate.now()));
-    }
-
-    public List<Reserva> listarReservas() {
-        return new ArrayList<>(reservas);
-    }
-
-    public boolean atualizarReserva(String cpf, String tituloAntigo, String novoTitulo, LocalDate novaData) {
-        Optional<Reserva> reservaOpt = reservas.stream()
-                .filter(r -> r.getCpf().equals(cpf) && r.getTituloLivro().equalsIgnoreCase(tituloAntigo))
-                .findFirst();
-
-        if (reservaOpt.isEmpty())
-            return false;
-
-        Reserva r = reservaOpt.get();
-        r.setTituloLivro(novoTitulo);
-        r.setDataReserva(novaData);
-        return true;
-    }
-
-    public void cancelarReserva(String cpf, String tituloLivro) {
-        Optional<Reserva> reservaOpt = reservas.stream()
-                .filter(r -> r.getCpf().equals(cpf) && r.getTituloLivro().equalsIgnoreCase(tituloLivro))
-                .findFirst();
-
-        if (reservaOpt.isEmpty()) {
-            throw new IllegalArgumentException("Reserva não encontrada.");
-        }
-
-        reservas.remove(reservaOpt.get());
-    }
-
-    public void limparReservas() {
-        reservas.clear();
-    }
-
-    public String gerarRelatorioReservas() {
-        if (reservas.isEmpty())
-            return "Nenhuma reserva registrada.";
-
-        StringBuilder sb = new StringBuilder("\n=== RELATÓRIO DE RESERVAS ===\n");
-        for (Reserva r : reservas) {
-            sb.append(r.toString()).append("\n");
-        }
-        return sb.toString();
     }
 }

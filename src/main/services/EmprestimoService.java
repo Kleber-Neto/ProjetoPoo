@@ -1,4 +1,3 @@
-// EmprestimoService.java (atualizado para considerar reservas)
 package main.services;
 
 import main.models.Emprestavel;
@@ -60,7 +59,10 @@ public class EmprestimoService {
 
         // Verifica se o livro já está emprestado
         boolean livroJaEmprestado = emprestimos.stream()
-                .anyMatch(e -> e.getLivro().equalsIgnoreCase(titulo) && !e.estaDisponivel());
+                .anyMatch(e -> {
+                    String livro = (String) e.getLivro();
+                    return livro != null && livro.equalsIgnoreCase(titulo) && !e.estaDisponivel();
+                });
 
         if (livroJaEmprestado) {
             throw new IllegalArgumentException("Este livro já está emprestado!");

@@ -11,7 +11,7 @@ public class Livro {
         this.ano = ano;
     }
 
-    // Gettes (Encapsulamento)
+    // Gettes
     public String getTitulo() {
         return titulo;
     }

@@ -1,4 +1,3 @@
-// BibliotecaService.java (atualizado para listar apenas livros realmente disponíveis)
 package main.services;
 
 import main.models.*;
@@ -56,9 +55,6 @@ public class BibliotecaService {
         }
         return listarLivrosDisponivel(titulosEmprestados);
     }
-
-    // ... restante do código da classe permanece o mesmo (não modificado aqui para
-    // manter clareza)
 
     public void cadastrarLivro(String titulo, String autor, int ano) {
         Livro livro = new Livro(titulo, autor, ano);
